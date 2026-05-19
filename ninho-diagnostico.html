@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Diagnóstico Financeiro Gratuito para Supermercados — Ninho Consultoria"/>
+  <title>Diagnóstico Financeiro | Ninho Consultoria</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#F7F8FA;font-family:'DM Sans','Helvetica Neue',Arial,sans-serif;color:#1a1a2e;}
+    .hdr{background:#fff;border-bottom:1px solid #E5E8EE;height:64px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+    .btn{background:#1565C0;color:#fff;border:none;border-radius:5px;padding:14px 30px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.15s;}
+    .btn:hover{background:#0D47A1;box-shadow:0 4px 16px rgba(21,101,192,0.32);}
+    .btn:disabled{background:#CBD5E0;cursor:not-allowed;box-shadow:none;}
+    .btn-ghost{background:transparent;color:#1565C0;border:1.5px solid #1565C0;border-radius:5px;padding:9px 18px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.15s;}
+    .btn-ghost:hover{background:#EEF3FF;}
+    .card{background:#fff;border:1px solid #E5E8EE;border-radius:10px;}
+    .opcao{display:flex;align-items:flex-start;gap:14px;width:100%;background:#FAFBFC;border:1.5px solid #E5E8EE;border-radius:8px;padding:15px 18px;margin-bottom:9px;cursor:pointer;text-align:left;font-family:inherit;font-size:14px;color:#374151;line-height:1.55;transition:all 0.13s;}
+    .opcao:hover{border-color:#1565C0;background:#F0F5FF;color:#0d1b2a;}
+    .opcao.sel{border-color:#1565C0;background:#EEF3FF;color:#0d1b2a;font-weight:600;}
+    .radio{width:18px;height:18px;border:2px solid #CBD5E0;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all 0.13s;}
+    .opcao.sel .radio{border-color:#1565C0;background:#1565C0;}
+    .rdot{width:6px;height:6px;background:#fff;border-radius:50%;}
+    .inp{width:100%;background:#FAFBFC;border:1.5px solid #E5E8EE;border-radius:5px;padding:13px 15px;font-family:inherit;font-size:14px;color:#1a1a2e;outline:none;transition:all 0.15s;margin-bottom:18px;}
+    .inp:focus{border-color:#1565C0;background:#fff;box-shadow:0 0 0 3px rgba(21,101,192,0.08);}
+    .inp::placeholder{color:#A0AEC0;}
+    .bar{height:4px;background:#E5E8EE;border-radius:2px;overflow:hidden;}
+    .barf{height:100%;background:#1565C0;border-radius:2px;transition:width 0.4s ease;}
+    .tag{display:inline-flex;align-items:center;gap:6px;background:#EEF3FF;color:#1565C0;font-size:11px;font-weight:700;padding:4px 12px;border-radius:3px;letter-spacing:0.8px;text-transform:uppercase;}
+    .ctx{background:#FFFBEB;border-left:3px solid #F59E0B;border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:22px;}
+    .fade{animation:fi 0.24s ease;}
+    @keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    select.inp{appearance:none;cursor:pointer;}
+    label{font-size:11px;font-weight:700;color:#374151;letter-spacing:0.8px;text-transform:uppercase;display:block;margin-bottom:7px;}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const PERGUNTAS = [
+  {id:1,area:"Fluxo de Caixa",icone:"💰",pergunta:"Você sabe exatamente quanto dinheiro vai entrar e sair do seu mercado nos próximos 30 dias?",contexto:"No varejo alimentar, a margem líquida média é de 1% a 3%. Um erro de previsão de caixa pode comprometer o pagamento de fornecedores e gerar juros que eliminam o lucro do mês inteiro.",opcoes:[{texto:"Sim, tenho controle diário e projeção mensal documentada",peso:0},{texto:"Tenho uma estimativa, mas não registro formalmente",peso:2},{texto:"Só percebo o problema quando o caixa já está no limite",peso:4},{texto:"Não realizo nenhum tipo de controle de fluxo de caixa",peso:5}]},
+  {id:2,area:"Precificação e CMV",icone:"🏷️",pergunta:"Você calcula o Custo da Mercadoria Vendida (CMV) e define margens por categoria de produto?",contexto:"Supermercados saudáveis operam com CMV entre 68% e 75% da receita. Sem esse controle, é comum vender produtos abaixo do custo real sem perceber.",opcoes:[{texto:"Sim, monitoro o CMV por categoria e reviso as margens regularmente",peso:0},{texto:"Tenho uma ideia geral, mas sem cálculo formal por categoria",peso:2},{texto:"Me baseio no preço do concorrente sem calcular minha margem real",peso:4},{texto:"Nunca calculei o CMV do meu mercado",peso:5}]},
+  {id:3,area:"Perdas e Perecíveis",icone:"🥬",pergunta:"Qual é o seu índice de perdas em perecíveis — FLV, açougue, frios e padaria?",contexto:"Pesquisa ABRAS 2025: supermercados convencionais têm índice médio de ineficiência de 2,07%. Perdas em perecíveis representam até 6% do faturamento em lojas sem controle.",opcoes:[{texto:"Monitoro perdas por seção e tenho plano ativo de redução",peso:0},{texto:"Percebo o desperdício mas não mensuro o impacto financeiro",peso:2},{texto:"Tenho perdas frequentes — vencimentos, quebras e furtos sem controle",peso:4},{texto:"Nunca medi as perdas do meu mercado formalmente",peso:5}]},
+  {id:4,area:"Gestão de Estoque",icone:"📦",pergunta:"Como você gerencia a compra e o giro de estoque do seu mercado?",contexto:"Estoque parado é dinheiro imobilizado com risco de perda. Ruptura de gôndola pode reduzir o faturamento em até 4% ao mês por perda de clientes para a concorrência.",opcoes:[{texto:"Controlo entradas, saídas, giro e curva ABC dos produtos",peso:0},{texto:"Compro por estimativa e às vezes sobra ou falta produto",peso:3},{texto:"Tenho excesso em alguns itens e ruptura frequente em outros",peso:4},{texto:"Não tenho visibilidade real do estoque nem do giro por produto",peso:5}]},
+  {id:5,area:"Estrutura de Custos",icone:"🧾",pergunta:"Você conhece o total exato dos seus custos fixos mensais — aluguel, folha, energia, sistema?",contexto:"No varejo com margens de 1% a 3%, um custo fixo não mapeado de R$ 2.000 por mês pode representar a eliminação total do lucro de um mercado que fatura R$ 100 mil.",opcoes:[{texto:"Sim, tenho planilha atualizada com todos os custos fixos mapeados",peso:0},{texto:"Conheço os principais, mas sem controle detalhado do total",peso:2},{texto:"Sou surpreendido todo mês com despesas que não havia previsto",peso:4},{texto:"Nunca somei o total real dos meus custos fixos mensais",peso:5}]},
+  {id:6,area:"Separação Financeira",icone:"🏦",pergunta:"As finanças do seu mercado estão completamente separadas das suas finanças pessoais?",contexto:"Misturar caixa pessoal e empresarial é a causa número 1 de empresários que 'vendem muito mas não sobra nada'. Sem separação, é impossível saber se o negócio é lucrativo de verdade.",opcoes:[{texto:"Sim, contas separadas e pró-labore definido — sem mistura",peso:0},{texto:"Tenho conta separada mas eventualmente uso o caixa para despesas pessoais",peso:2},{texto:"Uso o mesmo caixa para o mercado e para a vida pessoal",peso:4},{texto:"Não há nenhuma separação — tudo entra e sai do mesmo lugar",peso:5}]},
+  {id:7,area:"Margem de Lucro Real",icone:"📊",pergunta:"Você sabe qual é a margem de lucro líquida real do seu mercado após todos os custos?",contexto:"Muitos donos de mercado confundem faturamento com lucro. Um mercado que fatura R$ 200 mil/mês com margem de 2% lucra apenas R$ 4 mil. Sem saber esse número, não há como crescer.",opcoes:[{texto:"Sim, tenho DRE mensal e sei exatamente o que sobra",peso:0},{texto:"Tenho uma estimativa mas sem demonstrativo formal",peso:2},{texto:"Acredito que estou lucrando, mas não tenho isso calculado",peso:4},{texto:"Não sei se meu mercado dá lucro ou prejuízo de verdade",peso:5}]},
+  {id:8,area:"Perdas Operacionais",icone:"🔍",pergunta:"Você monitora perdas, desperdícios e quebras operacionais?",contexto:"Dados do Sebrae 2025: 48% das pequenas empresas fecham por falta de controle financeiro. Donos que analisam indicadores semanalmente têm 3x mais chance de sobreviver nos primeiros 5 anos.",opcoes:[{texto:"Sim, tenho indicadores de perdas e planos ativos de redução",peso:0},{texto:"Percebo o desperdício mas não mensuro o impacto financeiro",peso:2},{texto:"Tenho perdas frequentes sem dimensionamento do custo real",peso:4},{texto:"Nunca abordei perdas operacionais de forma estruturada",peso:5}]},
+  {id:9,area:"Endividamento",icone:"💳",pergunta:"Qual é a situação atual das suas dívidas, cheque especial e financiamentos?",contexto:"Com a Selic a 14,75% ao ano, dívidas no cheque especial podem custar mais de 10% ao mês — destruindo completamente a margem de um mercado que opera com 1% a 3% de lucro.",opcoes:[{texto:"Sem dívidas problemáticas — crédito utilizado de forma planejada",peso:0},{texto:"Tenho dívidas mas o pagamento está sob controle",peso:2},{texto:"Estou usando cheque especial ou rolando dívidas com frequência",peso:4},{texto:"Endividamento crítico com juros comprometendo o resultado do negócio",peso:5}]},
+  {id:10,area:"Análise de Indicadores",icone:"📈",pergunta:"Com que frequência você analisa os indicadores financeiros do seu mercado?",contexto:"Gestores que acompanham seus números semanalmente identificam problemas antes que virem crises. No varejo de margem estreita, um mês sem controle pode significar prejuízo acumulado.",opcoes:[{texto:"Semanalmente — fluxo de caixa, CMV, margem e indicadores de estoque",peso:0},{texto:"Mensalmente, mas de forma superficial ou só com o contador",peso:2},{texto:"Somente quando aparece algum problema de caixa",peso:4},{texto:"Nunca analisei os indicadores financeiros do meu mercado",peso:5}]},
+];
+
+function calcularDiagnostico(respostas) {
+  const total = respostas.reduce((acc,r)=>acc+r.peso,0);
+  const max = PERGUNTAS.length*5;
+  const pct = Math.round((total/max)*100);
+  let nivel,cor,titulo,subtitulo;
+  if(pct<=20){nivel="SAUDÁVEL";cor="#16a34a";titulo="Mercado Financeiramente Estruturado";subtitulo="Sua gestão está acima da média do setor supermercadista. Identificamos oportunidades pontuais de otimização de resultado.";}
+  else if(pct<=45){nivel="ATENÇÃO";cor="#b45309";titulo="Alertas Financeiros Identificados";subtitulo="Há lacunas na gestão que estão gerando perdas silenciosas todo mês. A correção preventiva ainda é possível com custo baixo.";}
+  else if(pct<=70){nivel="RISCO ELEVADO";cor="#b91c1c";titulo="Hemorragia Financeira em Curso";subtitulo="Seu mercado está perdendo capital de forma sistemática. Com margens de 1% a 3%, cada ponto perdido representa o lucro do mês inteiro.";}
+  else{nivel="CRÍTICO";cor="#7f1d1d";titulo="Risco Crítico de Continuidade";subtitulo="O negócio enfrenta risco real de inviabilidade. No varejo alimentar, problemas financeiros acumulados se tornam irreversíveis rapidamente.";}
+  const problemas=respostas.filter(r=>r.peso>=3).map(r=>({area:r.area,icone:r.icone,peso:r.peso,resposta:r.texto})).sort((a,b)=>b.peso-a.peso);
+  return {pct,nivel,cor,titulo,subtitulo,problemas};
+}
+
+function Wordmark({size="md"}) {
+  const cfg={sm:{n:17,s:8},md:{n:22,s:9},lg:{n:28,s:11}}[size]||{n:22,s:9};
+  return (
+    <div style={{display:"inline-flex",flexDirection:"column",lineHeight:1,userSelect:"none"}}>
+      <span style={{fontFamily:"'DM Sans',sans-serif",fontWeight:800,fontSize:cfg.n,color:"#1565C0",letterSpacing:"-0.5px",textTransform:"uppercase"}}>NINHO</span>
+      <span style={{fontFamily:"'DM Sans',sans-serif",fontWeight:500,fontSize:cfg.s,color:"#6b7280",letterSpacing:"3px",textTransform:"uppercase",marginTop:3}}>CONSULTORIA</span>
+    </div>
+  );
+}
+
+function App() {
+  const [etapa,setEtapa]=useState("intro");
+  const [passo,setPasso]=useState(0);
+  const [respostas,setRespostas]=useState([]);
+  const [selecionado,setSelecionado]=useState(null);
+  const [lead,setLead]=useState({nome:"",telefone:"",porte:""});
+  const [diagnostico,setDiagnostico]=useState(null);
+  const [iaTexto,setIaTexto]=useState("");
+  const [iaCarregando,setIaCarregando]=useState(false);
+  const [anim,setAnim]=useState(false);
+
+  const pAtual=PERGUNTAS[passo];
+  const progresso=Math.round((passo/PERGUNTAS.length)*100);
+  const WA="https://wa.me/message/OFQXW3GHJ2OPA1";
+
+  function avancar(){
+    if(!selecionado)return;
+    const nr=[...respostas,{...selecionado,area:pAtual.area,icone:pAtual.icone}];
+    setRespostas(nr);setSelecionado(null);
+    if(passo+1<PERGUNTAS.length){setAnim(true);setTimeout(()=>{setPasso(passo+1);setAnim(false);},220);}
+    else setEtapa("lead");
+  }
+
+  async function gerarDiagnostico(){
+    if(!lead.nome||!lead.telefone||!lead.porte)return;
+    const diag=calcularDiagnostico(respostas);
+    setDiagnostico(diag);setEtapa("diagnostico");setIaCarregando(true);
+    const detalhes=respostas.map((r,i)=>`${i+1}. [${r.area}] "${r.texto}" — risco: ${r.peso}/5`).join("\n");
+    const criticos=diag.problemas.map(p=>`- ${p.area} (risco ${p.peso}/5): "${p.resposta}"`).join("\n");
+    const prompt=`Você é um consultor financeiro sênior da Ninho Consultoria, com 20 anos de experiência exclusiva em supermercados e mercados de bairro no Brasil.\n\nEmpresário: ${lead.nome} | Porte: ${lead.porte}\nNível de risco: ${diag.nivel} (${diag.pct}%)\n\nRespostas:\n${detalhes}\n\nPontos críticos:\n${criticos||"Nenhum ponto crítico grave."}\n\nReferências do setor:\n- Margem líquida média: 1% a 3%\n- CMV saudável: 68% a 75%\n- Perdas em perecíveis sem controle: até 6% do faturamento\n- 48% das PMEs fecham por falhas de gestão (Sebrae 2025)\n\nEscreva um diagnóstico em 3 parágrafos separados por linha em branco. Sem títulos, sem marcadores.\n\nParágrafo 1: Leitura direta da situação, mencione o nome do empresário, tom consultivo. 3-4 frases.\n\nParágrafo 2: Os 3 principais vazamentos financeiros com impacto percentual estimado e dados reais do setor supermercadista.\n\nParágrafo 3: Urgência construtiva e convite para agendar conversa com a Ninho Consultoria.`;
+    try{
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+      const d=await r.json();
+      setIaTexto(d.content?.map(i=>i.text||"").join("")||"Erro ao gerar análise.");
+    }catch{setIaTexto("Não foi possível gerar a análise. Entre em contato com a Ninho Consultoria pelo WhatsApp.");}
+    finally{setIaCarregando(false);}
+  }
+
+  return (
+    <div>
+      <div className="hdr">
+        <Wordmark size="md"/>
+        <button className="btn-ghost" onClick={()=>window.open(WA,"_blank")}>Falar com consultor</button>
+      </div>
+
+      {etapa==="intro" && (
+        <div className="fade" style={{maxWidth:720,margin:"0 auto",padding:"68px 24px 80px"}}>
+          <span className="tag" style={{marginBottom:22,display:"inline-flex"}}>Diagnóstico Gratuito · Supermercados e Mercados</span>
+          <h1 style={{fontFamily:"'DM Serif Display',serif",fontSize:"clamp(32px,5.5vw,52px)",fontWeight:400,lineHeight:1.12,color:"#0D1B2A",marginBottom:20,maxWidth:600}}>
+            Seu mercado está perdendo dinheiro sem saber onde.
+          </h1>
+          <p style={{fontSize:16,color:"#4B5563",lineHeight:1.8,maxWidth:520,marginBottom:16}}>
+            No varejo alimentar, a margem líquida é de <strong>1% a 3%</strong>. Um único problema de gestão pode eliminar <strong>o lucro do mês inteiro.</strong>
+          </p>
+          <p style={{fontSize:16,color:"#4B5563",lineHeight:1.8,maxWidth:520,marginBottom:44}}>
+            Responda 10 perguntas e receba uma análise financeira personalizada pela equipe da Ninho Consultoria — com os pontos exatos onde seu negócio está sangrando.
+          </p>
+          <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap",marginBottom:56}}>
+            <button className="btn" style={{padding:"17px 42px",fontSize:15}} onClick={()=>setEtapa("questionario")}>Iniciar Diagnóstico Gratuito →</button>
+            <span style={{fontSize:13,color:"#9AA5B4"}}>10 perguntas · 3 minutos · sem cadastro inicial</span>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:1,background:"#E5E8EE",border:"1px solid #E5E8EE",borderRadius:10,overflow:"hidden",marginBottom:24}}>
+            {[{n:"R$ 36,5 bi",d:"perdidos em quebras e desperdícios no varejo alimentar",f:"Abrappe 2025"},{n:"2,07%",d:"índice médio de ineficiência em supermercados convencionais",f:"ABRAS 2025"},{n:"48%",d:"das pequenas empresas fecham por falhas de gestão financeira",f:"Sebrae 2025"}].map((s,i)=>(
+              <div key={i} style={{background:"#fff",padding:"26px 22px"}}>
+                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:28,color:"#1565C0",marginBottom:8,lineHeight:1}}>{s.n}</div>
+                <div style={{fontSize:13,color:"#374151",lineHeight:1.6,marginBottom:6}}>{s.d}</div>
+                <div style={{fontSize:11,color:"#9AA5B4",fontWeight:600}}>{s.f}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:"flex",alignItems:"flex-start",gap:10,padding:"14px 18px",background:"#fff",border:"1px solid #E5E8EE",borderRadius:7}}>
+            <span style={{fontSize:15,marginTop:1}}>🔒</span>
+            <span style={{fontSize:13,color:"#6B7280",lineHeight:1.6}}>Seus dados são confidenciais e serão utilizados exclusivamente pela equipe da Ninho Consultoria para retorno personalizado.</span>
+          </div>
+        </div>
+      )}
+
+      {etapa==="questionario" && (
+        <div style={{maxWidth:660,margin:"0 auto",padding:"44px 24px 72px"}}>
+          <div style={{marginBottom:32}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
+              <span style={{fontSize:13,color:"#6B7280",fontWeight:500}}>Pergunta {passo+1} <span style={{color:"#CBD5E0"}}>/ {PERGUNTAS.length}</span></span>
+              <span style={{fontSize:13,color:"#1565C0",fontWeight:700}}>{progresso}% concluído</span>
+            </div>
+            <div className="bar"><div className="barf" style={{width:`${progresso}%`}}/></div>
+          </div>
+          {!anim && (
+            <div className="fade">
+              <span className="tag" style={{marginBottom:16,display:"inline-flex"}}>{pAtual.icone}&nbsp;&nbsp;{pAtual.area}</span>
+              <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:"clamp(18px,3.5vw,25px)",fontWeight:400,color:"#0D1B2A",lineHeight:1.35,margin:"14px 0 18px"}}>{pAtual.pergunta}</h2>
+              <div className="ctx"><p style={{fontSize:13,color:"#78350F",lineHeight:1.6}}><strong>Por que isso importa:</strong> {pAtual.contexto}</p></div>
+              {pAtual.opcoes.map((op,i)=>(
+                <button key={i} className={`opcao${selecionado===op?" sel":""}`} onClick={()=>setSelecionado(op)}>
+                  <div className="radio">{selecionado===op&&<div className="rdot"/>}</div>
+                  <span>{op.texto}</span>
+                </button>
+              ))}
+              <div style={{display:"flex",justifyContent:"flex-end",marginTop:24}}>
+                <button className="btn" onClick={avancar} disabled={!selecionado}>{passo+1===PERGUNTAS.length?"Ver Diagnóstico →":"Próxima →"}</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {etapa==="lead" && (
+        <div className="fade" style={{maxWidth:480,margin:"0 auto",padding:"68px 24px 80px"}}>
+          <div style={{textAlign:"center",marginBottom:32}}>
+            <div style={{width:54,height:54,background:"#EEF3FF",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",color:"#1565C0",fontSize:22,fontWeight:700}}>✓</div>
+            <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:28,fontWeight:400,color:"#0D1B2A",marginBottom:10}}>Questionário concluído</h2>
+            <p style={{fontSize:15,color:"#6B7280",lineHeight:1.65}}>Informe seus dados para receber a análise completa da Ninho Consultoria.</p>
+          </div>
+          <div className="card" style={{padding:"32px 28px"}}>
+            <label>Nome completo</label>
+            <input className="inp" placeholder="Ex: João Silva" value={lead.nome} onChange={e=>setLead({...lead,nome:e.target.value})}/>
+            <label>WhatsApp com DDD</label>
+            <input className="inp" placeholder="Ex: (81) 99999-9999" value={lead.telefone} onChange={e=>setLead({...lead,telefone:e.target.value})}/>
+            <label>Porte do seu mercado</label>
+            <select className="inp" value={lead.porte} onChange={e=>setLead({...lead,porte:e.target.value})}>
+              <option value="">Selecione o porte...</option>
+              <option>Mercadinho de bairro (até 3 caixas)</option>
+              <option>Supermercado pequeno (4 a 8 caixas)</option>
+              <option>Supermercado médio (9 a 20 caixas)</option>
+              <option>Rede com mais de uma loja</option>
+            </select>
+            <button className="btn" style={{width:"100%",padding:"15px",fontSize:14,marginTop:4}} onClick={gerarDiagnostico} disabled={!lead.nome||!lead.telefone||!lead.porte}>
+              Receber Análise da Ninho Consultoria →
+            </button>
+            <p style={{fontSize:12,color:"#A0AEC0",textAlign:"center",marginTop:14}}>🔒 Dados confidenciais · Uso exclusivo da Ninho Consultoria</p>
+          </div>
+        </div>
+      )}
+
+      {etapa==="diagnostico" && diagnostico && (
+        <div className="fade" style={{maxWidth:760,margin:"0 auto",padding:"52px 24px 88px"}}>
+          <div className="card" style={{padding:"36px",marginBottom:14,borderTop:`3px solid ${diagnostico.cor}`}}>
+            <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:24,flexWrap:"wrap"}}>
+              <div style={{flex:1,minWidth:240}}>
+                <div style={{display:"inline-block",background:`${diagnostico.cor}14`,color:diagnostico.cor,fontWeight:700,fontSize:10,letterSpacing:"1.8px",padding:"4px 12px",borderRadius:3,textTransform:"uppercase",marginBottom:14}}>{diagnostico.nivel}</div>
+                <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:"clamp(20px,3.5vw,30px)",fontWeight:400,color:"#0D1B2A",lineHeight:1.2,marginBottom:10}}>{diagnostico.titulo}</h2>
+                <p style={{fontSize:14,color:"#6B7280",lineHeight:1.65}}>{diagnostico.subtitulo}</p>
+              </div>
+              <div style={{textAlign:"center",padding:"14px 22px",background:"#F7F8FA",borderRadius:8,border:"1px solid #E5E8EE"}}>
+                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:48,color:diagnostico.cor,lineHeight:1}}>{diagnostico.pct}%</div>
+                <div style={{fontSize:10,color:"#9AA5B4",marginTop:6,fontWeight:700,letterSpacing:"1px",textTransform:"uppercase"}}>Índice de Risco</div>
+              </div>
+            </div>
+            <div style={{marginTop:28}}>
+              <div style={{height:8,background:"#F0F2F5",borderRadius:4,position:"relative",overflow:"visible"}}>
+                <div style={{height:"100%",width:"100%",background:"linear-gradient(90deg,#16a34a 0%,#d97706 40%,#b91c1c 75%,#7f1d1d 100%)",borderRadius:4}}/>
+                <div style={{position:"absolute",left:`${diagnostico.pct}%`,top:"50%",transform:"translate(-50%,-50%)",width:18,height:18,background:"#0D1B2A",borderRadius:"50%",border:"3px solid #fff",boxShadow:"0 1px 6px rgba(0,0,0,0.22)"}}/>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
+                <span style={{fontSize:11,color:"#16a34a",fontWeight:700}}>Saudável</span>
+                <span style={{fontSize:11,color:"#7f1d1d",fontWeight:700}}>Crítico</span>
+              </div>
+            </div>
+          </div>
+
+          {diagnostico.problemas.length>0 && (
+            <div className="card" style={{padding:"26px 36px",marginBottom:14}}>
+              <h3 style={{fontSize:11,fontWeight:700,color:"#9AA5B4",letterSpacing:"1px",textTransform:"uppercase",marginBottom:18}}>Áreas de Maior Exposição ao Risco</h3>
+              {diagnostico.problemas.slice(0,5).map((p,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0",borderBottom:i<Math.min(diagnostico.problemas.length,5)-1?"1px solid #F3F4F6":"none"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <span style={{fontSize:18}}>{p.icone}</span>
+                    <span style={{fontSize:14,color:"#374151",fontWeight:500}}>{p.area}</span>
+                  </div>
+                  <div style={{display:"flex",gap:5}}>
+                    {[1,2,3,4,5].map(n=><div key={n} style={{width:10,height:10,borderRadius:"50%",background:n<=p.peso?diagnostico.cor:"#E5E8EE"}}/>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="card" style={{padding:"32px 36px",marginBottom:14}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:16,borderBottom:"1px solid #F3F4F6",flexWrap:"wrap",gap:12}}>
+              <Wordmark size="sm"/>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontSize:11,color:"#9AA5B4",fontWeight:500}}>Análise elaborada para</div>
+                <div style={{fontSize:13,color:"#374151",fontWeight:600,marginTop:2}}>{lead.nome} · {lead.porte}</div>
+              </div>
+            </div>
+            {iaCarregando?(
+              <div style={{padding:"24px 0",textAlign:"center"}}>
+                <div style={{width:34,height:34,border:"3px solid #E5E8EE",borderTop:"3px solid #1565C0",borderRadius:"50%",margin:"0 auto 14px",animation:"spin 0.8s linear infinite"}}/>
+                <p style={{fontSize:13,color:"#9AA5B4",fontWeight:500}}>Elaborando análise financeira...</p>
+              </div>
+            ):(
+              <div style={{fontSize:15,color:"#374151",lineHeight:1.9,whiteSpace:"pre-line"}}>{iaTexto}</div>
+            )}
+          </div>
+
+          <div style={{background:"#0D1B2A",borderRadius:10,padding:"40px 36px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:24,flexWrap:"wrap"}}>
+            <div style={{flex:1,minWidth:220}}>
+              <Wordmark size="md"/>
+              <p style={{fontSize:14,color:"rgba(255,255,255,0.6)",lineHeight:1.75,marginTop:14,maxWidth:360}}>Nossa equipe vai analisar seu diagnóstico e entrar em contato com um plano de ação concreto e personalizado para o seu mercado.</p>
+              <p style={{fontSize:12,color:"rgba(255,255,255,0.3)",marginTop:10}}>Primeira conversa gratuita · Sem compromisso</p>
+            </div>
+            <button className="btn" style={{background:"#1565C0",padding:"16px 28px",fontSize:14,whiteSpace:"nowrap"}} onClick={()=>window.open(WA,"_blank")}>
+              Falar com a Ninho Consultoria →
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
