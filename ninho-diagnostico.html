@@ -95,7 +95,7 @@ function App() {
   const pAtual=PERGUNTAS[passo];
   const progresso=Math.round((passo/PERGUNTAS.length)*100);
   const WA="https://wa.me/message/OFQXW3GHJ2OPA1";
-  const SCRIPT_URL="https://script.google.com/macros/s/AKfycbza2WpTmGYwT_dK1vpfH_ywaof95w82h3ZxEELJACN5y81IQ79zHplxdfyrXLdYvvcn/exec";
+
 
   function avancar(){
     if(!selecionado)return;
@@ -109,16 +109,19 @@ function App() {
     if(!lead.nome||!lead.telefone||!lead.porte)return;
     const diag=calcularDiagnostico(respostas);
     setDiagnostico(diag);setEtapa("diagnostico");setIaCarregando(true);
-    // Salvar lead na planilha
-    fetch(SCRIPT_URL, {
+    // Enviar lead por email via FormSubmit
+    const formData = new FormData();
+    formData.append("nome", lead.nome);
+    formData.append("telefone", lead.telefone);
+    formData.append("porte", lead.porte);
+    formData.append("nivel", diag.nivel);
+    formData.append("risco", diag.pct + "%");
+    formData.append("_subject", "Novo Lead - Diagnóstico Ninho Consultoria");
+    formData.append("_captcha", "false");
+    formData.append("_template", "table");
+    fetch("https://formsubmit.co/ninho@nestcompany.com.br", {
       method: "POST",
-      body: JSON.stringify({
-        nome: lead.nome,
-        telefone: lead.telefone,
-        porte: lead.porte,
-        nivel: diag.nivel,
-        pct: diag.pct
-      })
+      body: formData
     }).catch(()=>{});
     const detalhes=respostas.map((r,i)=>`${i+1}. [${r.area}] "${r.texto}" — risco: ${r.peso}/5`).join("\n");
     const criticos=diag.problemas.map(p=>`- ${p.area} (risco ${p.peso}/5): "${p.resposta}"`).join("\n");
