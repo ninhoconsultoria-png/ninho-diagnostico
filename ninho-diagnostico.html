@@ -117,7 +117,7 @@ function App() {
     const criticos=diag.problemas.map(p=>`- ${p.area} (risco ${p.peso}/5): "${p.resposta}"`).join("\n");
 
     // Enviar email via EmailJS
-    emailjs.send("service_0f8rr28","v6l9yb8",{
+    emailjs.send("service_sqqough","v6l9yb8",{
       name: lead.nome,
       email: lead.telefone,
       message: `NOVO LEAD - DIAGNÓSTICO NINHO CONSULTORIA\n\nNome: ${lead.nome}\nWhatsApp: ${lead.telefone}\nPorte: ${lead.porte}\nNível de Risco: ${diag.nivel} (${diag.pct}%)\n\nÁreas Críticas:\n${criticos||"Nenhuma área crítica"}`
