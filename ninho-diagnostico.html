@@ -8,26 +8,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:#F7F8FA;font-family:'DM Sans','Helvetica Neue',Arial,sans-serif;color:#1a1a2e;}
-    .hdr{background:#fff;border-bottom:1px solid #E5E8EE;height:64px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+    .hdr{background:#fff;border-bottom:1px solid #E5E8EE;height:64px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
     .btn{background:#1565C0;color:#fff;border:none;border-radius:5px;padding:14px 30px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.15s;}
     .btn:hover{background:#0D47A1;box-shadow:0 4px 16px rgba(21,101,192,0.32);}
-    .btn:disabled{background:#CBD5E0;cursor:not-allowed;box-shadow:none;}
-    .btn-ghost{background:transparent;color:#1565C0;border:1.5px solid #1565C0;border-radius:5px;padding:9px 18px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.15s;}
+    .btn:disabled{background:#CBD5E0;cursor:not-allowed;}
+    .btn-ghost{background:transparent;color:#1565C0;border:1.5px solid #1565C0;border-radius:5px;padding:9px 18px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;}
     .btn-ghost:hover{background:#EEF3FF;}
     .card{background:#fff;border:1px solid #E5E8EE;border-radius:10px;}
     .opcao{display:flex;align-items:flex-start;gap:14px;width:100%;background:#FAFBFC;border:1.5px solid #E5E8EE;border-radius:8px;padding:15px 18px;margin-bottom:9px;cursor:pointer;text-align:left;font-family:inherit;font-size:14px;color:#374151;line-height:1.55;transition:all 0.13s;}
-    .opcao:hover{border-color:#1565C0;background:#F0F5FF;color:#0d1b2a;}
+    .opcao:hover{border-color:#1565C0;background:#F0F5FF;}
     .opcao.sel{border-color:#1565C0;background:#EEF3FF;color:#0d1b2a;font-weight:600;}
     .radio{width:18px;height:18px;border:2px solid #CBD5E0;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all 0.13s;}
     .opcao.sel .radio{border-color:#1565C0;background:#1565C0;}
     .rdot{width:6px;height:6px;background:#fff;border-radius:50%;}
     .inp{width:100%;background:#FAFBFC;border:1.5px solid #E5E8EE;border-radius:5px;padding:13px 15px;font-family:inherit;font-size:14px;color:#1a1a2e;outline:none;transition:all 0.15s;margin-bottom:18px;}
-    .inp:focus{border-color:#1565C0;background:#fff;box-shadow:0 0 0 3px rgba(21,101,192,0.08);}
+    .inp:focus{border-color:#1565C0;background:#fff;}
     .inp::placeholder{color:#A0AEC0;}
     .bar{height:4px;background:#E5E8EE;border-radius:2px;overflow:hidden;}
     .barf{height:100%;background:#1565C0;border-radius:2px;transition:width 0.4s ease;}
@@ -43,7 +43,9 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState } = React;
+const {useState} = React;
+
+emailjs.init("B6eDUysA0NnuHswFS");
 
 const PERGUNTAS = [
   {id:1,area:"Fluxo de Caixa",icone:"💰",pergunta:"Você sabe exatamente quanto dinheiro vai entrar e sair do seu mercado nos próximos 30 dias?",contexto:"No varejo alimentar, a margem líquida média é de 1% a 3%. Um erro de previsão de caixa pode comprometer o pagamento de fornecedores e gerar juros que eliminam o lucro do mês inteiro.",opcoes:[{texto:"Sim, tenho controle diário e projeção mensal documentada",peso:0},{texto:"Tenho uma estimativa, mas não registro formalmente",peso:2},{texto:"Só percebo o problema quando o caixa já está no limite",peso:4},{texto:"Não realizo nenhum tipo de controle de fluxo de caixa",peso:5}]},
@@ -82,7 +84,7 @@ function Wordmark({size="md"}) {
 }
 
 function App() {
-  const [etapa,setEtapa]=useState("intro");
+  const [etapa,setEtapa]=useState("cadastro");
   const [passo,setPasso]=useState(0);
   const [respostas,setRespostas]=useState([]);
   const [selecionado,setSelecionado]=useState(null);
@@ -96,83 +98,114 @@ function App() {
   const progresso=Math.round((passo/PERGUNTAS.length)*100);
   const WA="https://wa.me/message/OFQXW3GHJ2OPA1";
 
-
   function avancar(){
     if(!selecionado)return;
     const nr=[...respostas,{...selecionado,area:pAtual.area,icone:pAtual.icone}];
     setRespostas(nr);setSelecionado(null);
     if(passo+1<PERGUNTAS.length){setAnim(true);setTimeout(()=>{setPasso(passo+1);setAnim(false);},220);}
-    else setEtapa("lead");
+    else gerarDiagnostico(nr);
   }
 
-  async function gerarDiagnostico(){
-    if(!lead.nome||!lead.telefone||!lead.porte)return;
-    const diag=calcularDiagnostico(respostas);
-    setDiagnostico(diag);setEtapa("diagnostico");setIaCarregando(true);
-    // Enviar lead por email via FormSubmit
-    const formData = new FormData();
-    formData.append("nome", lead.nome);
-    formData.append("telefone", lead.telefone);
-    formData.append("porte", lead.porte);
-    formData.append("nivel", diag.nivel);
-    formData.append("risco", diag.pct + "%");
-    formData.append("_subject", "Novo Lead - Diagnóstico Ninho Consultoria");
-    formData.append("_captcha", "false");
-    formData.append("_template", "table");
-    fetch("https://formsubmit.co/ninho.consultoria@gmail.com", {
-      method: "POST",
-      body: formData
-    }).catch(()=>{});
-    const detalhes=respostas.map((r,i)=>`${i+1}. [${r.area}] "${r.texto}" — risco: ${r.peso}/5`).join("\n");
+  async function gerarDiagnostico(rs) {
+    const r = rs || respostas;
+    const diag=calcularDiagnostico(r);
+    setDiagnostico(diag);
+    setEtapa("diagnostico");
+    setIaCarregando(true);
+
+    const detalhes=r.map((x,i)=>`${i+1}. [${x.area}] "${x.texto}" — risco: ${x.peso}/5`).join("\n");
     const criticos=diag.problemas.map(p=>`- ${p.area} (risco ${p.peso}/5): "${p.resposta}"`).join("\n");
-    const prompt=`Você é um consultor financeiro sênior da Ninho Consultoria, com 20 anos de experiência exclusiva em supermercados e mercados de bairro no Brasil.\n\nEmpresário: ${lead.nome} | Porte: ${lead.porte}\nNível de risco: ${diag.nivel} (${diag.pct}%)\n\nRespostas:\n${detalhes}\n\nPontos críticos:\n${criticos||"Nenhum ponto crítico grave."}\n\nReferências do setor:\n- Margem líquida média: 1% a 3%\n- CMV saudável: 68% a 75%\n- Perdas em perecíveis sem controle: até 6% do faturamento\n- 48% das PMEs fecham por falhas de gestão (Sebrae 2025)\n\nEscreva um diagnóstico em 3 parágrafos separados por linha em branco. Sem títulos, sem marcadores.\n\nParágrafo 1: Leitura direta da situação, mencione o nome do empresário, tom consultivo. 3-4 frases.\n\nParágrafo 2: Os 3 principais vazamentos financeiros com impacto percentual estimado e dados reais do setor supermercadista.\n\nParágrafo 3: Urgência construtiva e convite para agendar conversa com a Ninho Consultoria.`;
+
+    // Enviar email via EmailJS
+    emailjs.send("service_0f8rr28","v6l9yb8",{
+      name: lead.nome,
+      email: lead.telefone,
+      message: `NOVO LEAD - DIAGNÓSTICO NINHO CONSULTORIA\n\nNome: ${lead.nome}\nWhatsApp: ${lead.telefone}\nPorte: ${lead.porte}\nNível de Risco: ${diag.nivel} (${diag.pct}%)\n\nÁreas Críticas:\n${criticos||"Nenhuma área crítica"}`
+    }).catch(()=>{});
+
+    const prompt=`Você é um consultor financeiro sênior da Ninho Consultoria, com 20 anos de experiência exclusiva em supermercados e mercados de bairro no Brasil.
+
+Empresário: ${lead.nome} | Porte: ${lead.porte}
+Nível de risco: ${diag.nivel} (${diag.pct}%)
+
+Respostas completas:
+${detalhes}
+
+Pontos críticos identificados:
+${criticos||"Nenhum ponto crítico grave."}
+
+Referências do setor:
+- Margem líquida média do varejo alimentar: 1% a 3%
+- CMV saudável: 68% a 75%
+- Perdas em perecíveis sem controle: até 6% do faturamento
+- 48% das PMEs fecham por falhas de gestão (Sebrae 2025)
+- Ineficiência operacional média: 2,07% (ABRAS 2025)
+
+Escreva um diagnóstico financeiro em 3 parágrafos separados por linha em branco. Sem títulos, sem marcadores, sem asteriscos.
+
+PARÁGRAFO 1 — LEITURA GERAL:
+Inicie com o nome do empresário. Faça uma leitura direta e honesta da situação. Mencione o nível de risco e o que significa na prática para um negócio com margem estreita. Tom: consultor experiente falando olho no olho. 3-4 frases.
+
+PARÁGRAFO 2 — OS 3 PRINCIPAIS VAZAMENTOS:
+Para cada vazamento identifique: (a) o problema específico com base na resposta dada, (b) a causa mais provável dentro de um supermercado, (c) como isso se manifesta no dia a dia do empresário — o sinal que ele vê mas não associa ao problema financeiro, e (d) o impacto estimado em percentual da receita. Use dados reais do setor. Seja concreto e revelador — o empresário deve reconhecer o problema na sua própria rotina.
+
+PARÁGRAFO 3 — PRÓXIMO PASSO:
+Duas frases com urgência real e construtiva. Convide o empresário a agendar uma conversa com a Ninho Consultoria para transformar esse diagnóstico em um plano de ação com resultado mensurável.`;
+
     try{
-      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
-      const d=await r.json();
+      const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1400,messages:[{role:"user",content:prompt}]})});
+      const d=await resp.json();
       setIaTexto(d.content?.map(i=>i.text||"").join("")||"Erro ao gerar análise.");
     }catch{setIaTexto("Não foi possível gerar a análise. Entre em contato com a Ninho Consultoria pelo WhatsApp.");}
     finally{setIaCarregando(false);}
   }
 
   return (
-    <div>
+    <div style={{minHeight:"100vh",background:"#F7F8FA",fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",color:"#1a1a2e"}}>
+      <style>{`
+        @keyframes spin{to{transform:rotate(360deg)}}
+      `}</style>
+
+      {/* HEADER */}
       <div className="hdr">
         <Wordmark size="md"/>
         <button className="btn-ghost" onClick={()=>window.open(WA,"_blank")}>Falar com consultor</button>
       </div>
 
-      {etapa==="intro" && (
-        <div className="fade" style={{maxWidth:720,margin:"0 auto",padding:"68px 24px 80px"}}>
-          <span className="tag" style={{marginBottom:22,display:"inline-flex"}}>Diagnóstico Gratuito · Supermercados e Mercados</span>
-          <h1 style={{fontFamily:"'DM Serif Display',serif",fontSize:"clamp(32px,5.5vw,52px)",fontWeight:400,lineHeight:1.12,color:"#0D1B2A",marginBottom:20,maxWidth:600}}>
-            Seu mercado está perdendo dinheiro sem saber onde.
-          </h1>
-          <p style={{fontSize:16,color:"#4B5563",lineHeight:1.8,maxWidth:520,marginBottom:16}}>
-            No varejo alimentar, a margem líquida é de <strong>1% a 3%</strong>. Um único problema de gestão pode eliminar <strong>o lucro do mês inteiro.</strong>
-          </p>
-          <p style={{fontSize:16,color:"#4B5563",lineHeight:1.8,maxWidth:520,marginBottom:44}}>
-            Responda 10 perguntas e receba uma análise financeira personalizada pela equipe da Ninho Consultoria — com os pontos exatos onde seu negócio está sangrando.
-          </p>
-          <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap",marginBottom:56}}>
-            <button className="btn" style={{padding:"17px 42px",fontSize:15}} onClick={()=>setEtapa("questionario")}>Iniciar Diagnóstico Gratuito →</button>
-            <span style={{fontSize:13,color:"#9AA5B4"}}>10 perguntas · 3 minutos · sem cadastro inicial</span>
+      {/* CADASTRO INICIAL */}
+      {etapa==="cadastro" && (
+        <div className="fade" style={{maxWidth:480,margin:"0 auto",padding:"68px 24px 80px"}}>
+          <div style={{textAlign:"center",marginBottom:32}}>
+            <span className="tag" style={{marginBottom:20,display:"inline-flex"}}>Diagnóstico Gratuito · Supermercados e Mercados</span>
+            <h1 style={{fontFamily:"'DM Serif Display',serif",fontSize:"clamp(28px,5vw,40px)",fontWeight:400,color:"#0D1B2A",margin:"16px 0 12px",lineHeight:1.2}}>
+              Seu mercado está perdendo dinheiro sem saber onde.
+            </h1>
+            <p style={{fontSize:15,color:"#6B7280",lineHeight:1.65}}>
+              Preencha seus dados para iniciar o diagnóstico gratuito e receber sua análise personalizada.
+            </p>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:1,background:"#E5E8EE",border:"1px solid #E5E8EE",borderRadius:10,overflow:"hidden",marginBottom:24}}>
-            {[{n:"R$ 36,5 bi",d:"perdidos em quebras e desperdícios no varejo alimentar",f:"Abrappe 2025"},{n:"2,07%",d:"índice médio de ineficiência em supermercados convencionais",f:"ABRAS 2025"},{n:"48%",d:"das pequenas empresas fecham por falhas de gestão financeira",f:"Sebrae 2025"}].map((s,i)=>(
-              <div key={i} style={{background:"#fff",padding:"26px 22px"}}>
-                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:28,color:"#1565C0",marginBottom:8,lineHeight:1}}>{s.n}</div>
-                <div style={{fontSize:13,color:"#374151",lineHeight:1.6,marginBottom:6}}>{s.d}</div>
-                <div style={{fontSize:11,color:"#9AA5B4",fontWeight:600}}>{s.f}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{display:"flex",alignItems:"flex-start",gap:10,padding:"14px 18px",background:"#fff",border:"1px solid #E5E8EE",borderRadius:7}}>
-            <span style={{fontSize:15,marginTop:1}}>🔒</span>
-            <span style={{fontSize:13,color:"#6B7280",lineHeight:1.6}}>Seus dados são confidenciais e serão utilizados exclusivamente pela equipe da Ninho Consultoria para retorno personalizado.</span>
+          <div className="card" style={{padding:"32px 28px"}}>
+            <label>Nome completo</label>
+            <input className="inp" placeholder="Ex: João Silva" value={lead.nome} onChange={e=>setLead({...lead,nome:e.target.value})}/>
+            <label>WhatsApp com DDD</label>
+            <input className="inp" placeholder="Ex: (81) 99999-9999" value={lead.telefone} onChange={e=>setLead({...lead,telefone:e.target.value})}/>
+            <label>Porte do seu mercado</label>
+            <select className="inp" value={lead.porte} onChange={e=>setLead({...lead,porte:e.target.value})}>
+              <option value="">Selecione o porte...</option>
+              <option>Mercadinho de bairro (até 3 caixas)</option>
+              <option>Supermercado pequeno (4 a 8 caixas)</option>
+              <option>Supermercado médio (9 a 20 caixas)</option>
+              <option>Rede com mais de uma loja</option>
+            </select>
+            <button className="btn" style={{width:"100%",padding:"15px",fontSize:14}} onClick={()=>{if(lead.nome&&lead.telefone&&lead.porte)setEtapa("questionario");}} disabled={!lead.nome||!lead.telefone||!lead.porte}>
+              Iniciar Diagnóstico Gratuito →
+            </button>
+            <p style={{fontSize:12,color:"#A0AEC0",textAlign:"center",marginTop:14}}>🔒 Dados confidenciais · Uso exclusivo da Ninho Consultoria</p>
           </div>
         </div>
       )}
 
+      {/* QUESTIONÁRIO */}
       {etapa==="questionario" && (
         <div style={{maxWidth:660,margin:"0 auto",padding:"44px 24px 72px"}}>
           <div style={{marginBottom:32}}>
@@ -201,36 +234,11 @@ function App() {
         </div>
       )}
 
-      {etapa==="lead" && (
-        <div className="fade" style={{maxWidth:480,margin:"0 auto",padding:"68px 24px 80px"}}>
-          <div style={{textAlign:"center",marginBottom:32}}>
-            <div style={{width:54,height:54,background:"#EEF3FF",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",color:"#1565C0",fontSize:22,fontWeight:700}}>✓</div>
-            <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:28,fontWeight:400,color:"#0D1B2A",marginBottom:10}}>Questionário concluído</h2>
-            <p style={{fontSize:15,color:"#6B7280",lineHeight:1.65}}>Informe seus dados para receber a análise completa da Ninho Consultoria.</p>
-          </div>
-          <div className="card" style={{padding:"32px 28px"}}>
-            <label>Nome completo</label>
-            <input className="inp" placeholder="Ex: João Silva" value={lead.nome} onChange={e=>setLead({...lead,nome:e.target.value})}/>
-            <label>WhatsApp com DDD</label>
-            <input className="inp" placeholder="Ex: (81) 99999-9999" value={lead.telefone} onChange={e=>setLead({...lead,telefone:e.target.value})}/>
-            <label>Porte do seu mercado</label>
-            <select className="inp" value={lead.porte} onChange={e=>setLead({...lead,porte:e.target.value})}>
-              <option value="">Selecione o porte...</option>
-              <option>Mercadinho de bairro (até 3 caixas)</option>
-              <option>Supermercado pequeno (4 a 8 caixas)</option>
-              <option>Supermercado médio (9 a 20 caixas)</option>
-              <option>Rede com mais de uma loja</option>
-            </select>
-            <button className="btn" style={{width:"100%",padding:"15px",fontSize:14,marginTop:4}} onClick={gerarDiagnostico} disabled={!lead.nome||!lead.telefone||!lead.porte}>
-              Receber Análise da Ninho Consultoria →
-            </button>
-            <p style={{fontSize:12,color:"#A0AEC0",textAlign:"center",marginTop:14}}>🔒 Dados confidenciais · Uso exclusivo da Ninho Consultoria</p>
-          </div>
-        </div>
-      )}
-
+      {/* DIAGNÓSTICO */}
       {etapa==="diagnostico" && diagnostico && (
         <div className="fade" style={{maxWidth:760,margin:"0 auto",padding:"52px 24px 88px"}}>
+
+          {/* Resultado */}
           <div className="card" style={{padding:"36px",marginBottom:14,borderTop:`3px solid ${diagnostico.cor}`}}>
             <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:24,flexWrap:"wrap"}}>
               <div style={{flex:1,minWidth:240}}>
@@ -255,6 +263,7 @@ function App() {
             </div>
           </div>
 
+          {/* Áreas críticas */}
           {diagnostico.problemas.length>0 && (
             <div className="card" style={{padding:"26px 36px",marginBottom:14}}>
               <h3 style={{fontSize:11,fontWeight:700,color:"#9AA5B4",letterSpacing:"1px",textTransform:"uppercase",marginBottom:18}}>Áreas de Maior Exposição ao Risco</h3>
@@ -272,6 +281,7 @@ function App() {
             </div>
           )}
 
+          {/* Análise IA */}
           <div className="card" style={{padding:"32px 36px",marginBottom:14}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:16,borderBottom:"1px solid #F3F4F6",flexWrap:"wrap",gap:12}}>
               <Wordmark size="sm"/>
@@ -281,7 +291,7 @@ function App() {
               </div>
             </div>
             {iaCarregando?(
-              <div style={{padding:"24px 0",textAlign:"center"}}>
+              <div style={{padding:"28px 0",textAlign:"center"}}>
                 <div style={{width:34,height:34,border:"3px solid #E5E8EE",borderTop:"3px solid #1565C0",borderRadius:"50%",margin:"0 auto 14px",animation:"spin 0.8s linear infinite"}}/>
                 <p style={{fontSize:13,color:"#9AA5B4",fontWeight:500}}>Elaborando análise financeira...</p>
               </div>
@@ -290,6 +300,7 @@ function App() {
             )}
           </div>
 
+          {/* CTA */}
           <div style={{background:"#0D1B2A",borderRadius:10,padding:"40px 36px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:24,flexWrap:"wrap"}}>
             <div style={{flex:1,minWidth:220}}>
               <Wordmark size="md"/>
@@ -300,6 +311,7 @@ function App() {
               Falar com a Ninho Consultoria →
             </button>
           </div>
+
         </div>
       )}
     </div>
